@@ -14,8 +14,8 @@ type AlgSimple interface {
 type WarmupType uint8
 
 const (
-	WarmEMA = iota // Exponential Moving Average
-	WarmSMA        // Simple Moving Average
+	WarmEMA WarmupType = iota // Exponential Moving Average
+	WarmSMA                   // Simple Moving Average
 )
 
 func (wt *WarmupType) UnmarshalJSON(bs []byte) error {
@@ -34,7 +34,7 @@ func (wt WarmupType) MarshalJSON() ([]byte, error) {
 	case WarmSMA:
 		return []byte(`"SMA"`), nil
 	}
-	return nil, fmt.Errorf("unknown warmup type %s", wt)
+	return nil, fmt.Errorf("unknown warmup type %d", wt)
 }
 
 // EMA - Exponential Moving Average (http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages#exponential_moving_average_calculation)
