@@ -1,7 +1,6 @@
 package gota
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/phemmer/talib"
