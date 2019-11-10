@@ -40,6 +40,14 @@ type EMA struct {
 	warmType     WarmupType
 }
 
+// EMAConstructor is for passing to algorithms with swappable moving average implementations.
+type EMAConstructor struct {
+	WarmupType WarmupType
+}
+func (c EMAConstructor) New(inTimePeriod int) AlgSimple {
+	return NewEMA(inTimePeriod, c.WarmupType)
+}
+
 // NewEMA constructs a new EMA.
 //
 // When warmed with WarmSMA the first inTimePeriod samples will result in a simple average, switching to exponential moving average after warmup is complete.
@@ -79,8 +87,10 @@ func (ema *EMA) Add(v float64) float64 {
 			if ema.warmType == WarmSMA {
 				avg = (lastAvg*float64(ema.count) + v) / float64(ema.count+1)
 			} else { // ema.warmType == WarmEMA
-				// scale the alpha so that we don't excessively weight the result towards the first value
-				alpha := 2 / float64(ema.count+2)
+				// Scale the alpha so that we don't excessively weight the result towards the first value.
+				// We adjust using the existing alpha instead of calculating from scratch (which would be simpler/faster) as
+				// WSMA overrides the alpha with a custom numerator.
+				alpha := ema.alpha * float64(ema.inTimePeriod+1) / float64(ema.count+2)
 				avg = (v-lastAvg)*alpha + lastAvg
 			}
 		} else {
@@ -100,6 +110,14 @@ func (ema *EMA) Add(v float64) float64 {
 type DEMA struct {
 	ema1 EMA
 	ema2 EMA
+}
+
+// DEMAConstructor is for passing to algorithms with swappable moving average implementations.
+type DEMAConstructor struct {
+	WarmupType WarmupType
+}
+func (c DEMAConstructor) New(inTimePeriod int) AlgSimple {
+	return NewDEMA(inTimePeriod, c.WarmupType)
 }
 
 // NewDEMA constructs a new DEMA.
@@ -144,6 +162,14 @@ type TEMA struct {
 	ema1 EMA
 	ema2 EMA
 	ema3 EMA
+}
+
+// TEMAConstructor is for passing to algorithms with swappable moving average implementations.
+type TEMAConstructor struct {
+	WarmupType WarmupType
+}
+func (c TEMAConstructor) New(inTimePeriod int) AlgSimple {
+	return NewEMA(inTimePeriod, c.WarmupType)
 }
 
 // NewTEMA constructs a new TEMA.

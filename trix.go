@@ -9,6 +9,14 @@ type TRIX struct {
 	count int
 }
 
+// TRIXConstructor is for passing to algorithms with swappable moving average implementations.
+type TRIXConstructor struct {
+	WarmupType WarmupType
+}
+func (c TRIXConstructor) New(inTimePeriod int) AlgSimple {
+	return NewTRIX(inTimePeriod, c.WarmupType)
+}
+
 // NewTRIX constructs a new TRIX.
 func NewTRIX(inTimePeriod int, warmType WarmupType) *TRIX {
 	ema1 := NewEMA(inTimePeriod, warmType)
