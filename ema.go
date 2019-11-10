@@ -8,8 +8,13 @@ import (
 type WarmupType uint8
 
 const (
-	WarmEMA WarmupType = iota // Exponential Moving Average
-	WarmSMA                   // Simple Moving Average
+	WarmNone WarmupType = iota // No alternate warmup algorithm.
+														 // WarmNone is highly discouraged as it excessively weights the initial results towards the first values.
+	WarmSMA                    // Simple Moving Average
+	WarmEMA                    // Exponential Moving Average
+														 // WarmEMA scales the EMA's alpha value during the warmup period.
+														 // Meaning it acts as if the algorithms's configured period for the first sample is 1, second sample 2, etc.
+														 // Some algorithms have a shorter warmup period when this type is used.
 )
 
 func (wt *WarmupType) UnmarshalJSON(bs []byte) error {
@@ -44,6 +49,7 @@ type EMA struct {
 type EMAConstructor struct {
 	WarmupType WarmupType
 }
+
 func (c EMAConstructor) New(inTimePeriod int) AlgSimple {
 	return NewEMA(inTimePeriod, c.WarmupType)
 }
@@ -83,7 +89,7 @@ func (ema *EMA) Add(v float64) float64 {
 		avg = v
 	} else {
 		lastAvg := ema.Last()
-		if !ema.Warmed() {
+		if !ema.Warmed() && ema.warmType != WarmNone {
 			if ema.warmType == WarmSMA {
 				avg = (lastAvg*float64(ema.count) + v) / float64(ema.count+1)
 			} else { // ema.warmType == WarmEMA
@@ -116,6 +122,7 @@ type DEMA struct {
 type DEMAConstructor struct {
 	WarmupType WarmupType
 }
+
 func (c DEMAConstructor) New(inTimePeriod int) AlgSimple {
 	return NewDEMA(inTimePeriod, c.WarmupType)
 }
@@ -168,6 +175,7 @@ type TEMA struct {
 type TEMAConstructor struct {
 	WarmupType WarmupType
 }
+
 func (c TEMAConstructor) New(inTimePeriod int) AlgSimple {
 	return NewEMA(inTimePeriod, c.WarmupType)
 }
