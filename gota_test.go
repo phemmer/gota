@@ -8,7 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func randList(size int, min, max float64) []float64 {
+func randList(size int) []float64 {
+	min := float64(1)
+	max := float64(20)
 	list := make([]float64, size)
 	for i := 0; i < size; i++ {
 		list[i] = math.Floor(rand.Float64() * (max - min) + min)
@@ -17,7 +19,7 @@ func randList(size int, min, max float64) []float64 {
 }
 
 func dataHighLowCloseVolume(size int) ([]float64, []float64, []float64, []float64) {
-	low := randList(size, 1, 20)
+	low := randList(size)
 
 	high := make([]float64, len(low))
 	for i := 0; i < size; i++ {
@@ -29,41 +31,25 @@ func dataHighLowCloseVolume(size int) ([]float64, []float64, []float64, []float6
 		close[i] = rand.Float64() * (high[i] - low[i]) + low[i]
 	}
 
-	volume := randList(size, 1, 5)
+	volume := randList(size)
 
 	return high, low, close, volume
 }
 
-type TALibQuad func([]float64, []float64, []float64, []float64, []float64) ([]float64, int)
-func testTALibQuad(t *testing.T, taAlg TALibQuad, alg AlgQuad) {
-	high, low, close, volume := dataHighLowCloseVolume(20)
+//type TALibSimple0Per func([]float64, []float64) ([]float64, int)
 
-	expList, _ := taAlg(high, low, close, volume, nil)
-
-	var actList []float64
-	for i := 0; i < len(high); i++ {
-		if vOut := alg.Add(high[i], low[i], close[i], volume[i]); alg.Warmed() {
-			actList = append(actList, vOut)
-		}
-	}
-
-	assert.InDeltaSlice(t, expList, actList, 1E-7)
-}
-
-type TALibPerQuad func([]float64, []float64, []float64, []float64, int, []float64) ([]float64, int)
-
-type TALibSingle func([]float64, []float64) ([]float64, int)
-
-type TALibPerSingle func([]float64, int, []float64) ([]float64, int)
-func testTALibPerSingle(t *testing.T, inTimePeriod int, alg AlgSimple, taAlg TALibPerSingle) {
-	list, _, _, _ := dataHighLowCloseVolume(alg.WarmCount() + 3)
+type TALibSimple func([]float64, int, []float64) ([]float64, int)
+func testTALibSimple(t *testing.T, inTimePeriod int, alg AlgSimple, taAlg TALibSimple) {
+	list := randList(alg.WarmCount() + 3)
 
 	expList, _ := taAlg(list, inTimePeriod, nil)
 
 	var actWarmCount int
+	var warmList []float64
 	var actList []float64
 	for i := 0; i < len(list); i++ {
 		if vOut := alg.Add(list[i]); alg.Warmed() {
+			warmList = append(warmList, list[i])
 			actList = append(actList, vOut)
 		} else {
 			actWarmCount++
@@ -75,7 +61,74 @@ func testTALibPerSingle(t *testing.T, inTimePeriod int, alg AlgSimple, taAlg TAL
 		t.FailNow()
 	}
 
-	assert.InDeltaSlice(t, expList, actList, 1E-7)
+	assert.InDeltaSlice(t, expList, actList, 1E-7,
+		"Input:    %v (len=%d)\nExpected: %v (len=%d)\nActual:  %v (len=%d)",
+		warmList, len(warmList),
+		expList, len(expList),
+		actList, len(actList),
+	)
+
+	assert.Equal(t, alg.WarmCount(), actWarmCount, "warm count not equal")
+}
+
+type TALibQuad0Per func([]float64, []float64, []float64, []float64, []float64) ([]float64, int)
+func testTALibQuad0Per(t *testing.T, taAlg TALibQuad0Per, alg AlgQuad) {
+	high, low, close, volume := dataHighLowCloseVolume(alg.WarmCount()+3)
+
+	expList, _ := taAlg(high, low, close, volume, nil)
+
+	var actWarmCount int
+	var actList []float64
+	for i := 0; i < len(high); i++ {
+		if vOut := alg.Add(high[i], low[i], close[i], volume[i]); alg.Warmed() {
+			actList = append(actList, vOut)
+		} else {
+			actWarmCount++
+		}
+	}
+
+	if !alg.Warmed() {
+		t.Errorf("algorithm did not warm up within time period")
+		t.FailNow()
+	}
+
+	assert.InDeltaSlice(t, expList, actList, 1E-7,
+		"Expected: %v (len=%d)\nActual:  %v (len=%d)",
+		expList, len(expList),
+		actList, len(actList),
+	)
+
+	assert.Equal(t, alg.WarmCount(), actWarmCount, "warm count not equal")
+}
+
+type TALibQuad func([]float64, []float64, []float64, []float64, int, []float64) ([]float64, int)
+
+type TALibQuad2Per func([]float64, []float64, []float64, []float64, int, int, []float64) ([]float64, int)
+func testTALibQuad2Per(t *testing.T, inTimePeriodShort, inTimePeriodLong int, taAlg TALibQuad2Per, alg AlgQuad) {
+	high, low, close, volume := dataHighLowCloseVolume(alg.WarmCount() + 9)
+
+	expList, _ := taAlg(high, low, close, volume, inTimePeriodShort, inTimePeriodLong, nil)
+
+	var actWarmCount int
+	var actList []float64
+	for i := 0; i < len(high); i++ {
+		if vOut := alg.Add(high[i], low[i], close[i], volume[i]); alg.Warmed() {
+			actList = append(actList, vOut)
+		} else {
+			actWarmCount++
+		}
+	}
+
+	if !alg.Warmed() {
+		t.Errorf("algorithm did not warm up within time period")
+		t.FailNow()
+	}
+
+	assert.InDeltaSlice(t, expList, actList, 1E-7,
+		"Expected: %v (len=%d)\nActual:  %v (len=%d)",
+		expList, len(expList),
+		actList, len(actList),
+	)
 
 	assert.Equal(t, alg.WarmCount(), actWarmCount, "warm count not equal")
 }
