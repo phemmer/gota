@@ -20,6 +20,9 @@ func TestCMO(t *testing.T) {
 		}
 	}
 
+	assert.Equal(t, 11, cmo.WarmCount())
+	assert.Equal(t, cmo.WarmCount(), len(list) - len(actList) + 1)
+
 	assert.InDeltaSlice(t, expList, actList, 1E-7)
 }
 

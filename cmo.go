@@ -23,7 +23,7 @@ func NewCMO(inTimePeriod int) *CMO {
 
 // WarmCount returns the number of samples that must be provided for the algorithm to be fully "warmed".
 func (cmo *CMO) WarmCount() int {
-	return len(cmo.points)
+	return len(cmo.points)+2
 }
 
 // Add adds a new sample value to the algorithm and returns the computed value.
