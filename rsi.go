@@ -5,11 +5,12 @@ type RSI struct {
 	emaUp   EMA
 	emaDown EMA
 	lastV   float64
+	init bool
 }
 
 // NewRSI constructs a new RSI.
 func NewRSI(inTimePeriod int, warmType WarmupType) *RSI {
-	ema := NewEMA(inTimePeriod+1, warmType)
+	ema := NewEMA(inTimePeriod, warmType)
 	ema.alpha = float64(1) / float64(inTimePeriod)
 	return &RSI{
 		emaUp:   *ema,
@@ -19,7 +20,7 @@ func NewRSI(inTimePeriod int, warmType WarmupType) *RSI {
 
 // WarmCount returns the number of samples that must be provided for the algorithm to be fully "warmed".
 func (rsi RSI) WarmCount() int {
-	return rsi.emaUp.WarmCount()
+	return rsi.emaUp.WarmCount() + 1
 }
 
 // Warmed indicates whether the algorithm has enough data to generate accurate results.
@@ -34,6 +35,11 @@ func (rsi RSI) Last() float64 {
 
 // Add adds a new sample value to the algorithm and returns the computed value.
 func (rsi *RSI) Add(v float64) float64 {
+	if !rsi.init {
+		rsi.lastV = v
+		rsi.init = true
+		return 0
+	}
 	var up float64
 	var down float64
 	if v > rsi.lastV {
