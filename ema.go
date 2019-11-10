@@ -5,12 +5,6 @@ import (
 	"fmt"
 )
 
-type AlgSimple interface {
-	Add(float64) float64
-	Warmed() bool
-	WarmCount() int
-}
-
 type WarmupType uint8
 
 const (
