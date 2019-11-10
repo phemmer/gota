@@ -50,7 +50,9 @@ func (cmo *CMO) Add(v float64) float64 {
 	}
 
 	oldest := cmo.points[idxOldest]
-	//NOTE: because we're just adding and subtracting the difference, and not recalculating sumUp/sumDown using cmo.points[].price, it's possible for imprecision to creep in over time. Not sure how significant this is going to be, but if we want to fix it, we could recalculate it from scratch every N points.
+	//NOTE: because we're just adding and subtracting the difference, and not recalculating sumUp/sumDown using
+	// cmo.points[].price, it's possible for imprecision to creep in over time. Not sure how significant this is going to
+	// be, but if we want to fix it, we could recalculate it from scratch every N points.
 	if oldest.diff > 0 {
 		cmo.sumUp -= oldest.diff
 	} else if oldest.diff < 0 {
@@ -82,12 +84,12 @@ type CMOS struct {
 	emaUp   EMA
 	emaDown EMA
 	lastV   float64
+	init bool
 }
 
 // NewCMOS constructs a new CMOS.
 func NewCMOS(inTimePeriod int, warmType WarmupType) *CMOS {
-	ema := NewEMA(inTimePeriod+1, warmType)
-	ema.alpha = float64(1) / float64(inTimePeriod)
+	ema := NewWSMA(inTimePeriod, WarmSMA)
 	return &CMOS{
 		emaUp:   *ema,
 		emaDown: *ema,
@@ -96,7 +98,7 @@ func NewCMOS(inTimePeriod int, warmType WarmupType) *CMOS {
 
 // WarmCount returns the number of samples that must be provided for the algorithm to be fully "warmed".
 func (cmos CMOS) WarmCount() int {
-	return cmos.emaUp.WarmCount()
+	return cmos.emaUp.WarmCount() + 1
 }
 
 // Warmed indicates whether the algorithm has enough data to generate accurate results.
@@ -108,11 +110,20 @@ func (cmos CMOS) Warmed() bool {
 func (cmos CMOS) Last() float64 {
 	up := cmos.emaUp.Last()
 	down := cmos.emaDown.Last()
-	return 100.0 * ((up - down) / (up + down))
+	if up != 0 || down != 0 {
+		return 100.0 * ((up - down) / (up + down))
+	}
+	return 0
 }
 
 // Add adds a new sample value to the algorithm and returns the computed value.
 func (cmos *CMOS) Add(v float64) float64 {
+	if !cmos.init {
+		cmos.lastV = v
+		cmos.init = true
+		return 0
+	}
+
 	var up float64
 	var down float64
 	if v > cmos.lastV {
