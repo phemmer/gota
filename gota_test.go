@@ -40,7 +40,7 @@ func dataHighLowCloseVolume(size int) ([]float64, []float64, []float64, []float6
 
 type TALibSimple func([]float64, int, []float64) ([]float64, int)
 func testTALibSimple(t *testing.T, inTimePeriod int, alg AlgSimple, taAlg TALibSimple) {
-	list := randList(alg.WarmCount() + 3)
+	list := randList(alg.WarmCount() + 10)
 
 	expList, _ := taAlg(list, inTimePeriod, nil)
 
@@ -73,7 +73,7 @@ func testTALibSimple(t *testing.T, inTimePeriod int, alg AlgSimple, taAlg TALibS
 
 type TALibTri func([]float64, []float64, []float64, int, []float64) ([]float64, int)
 func testTALibTri(t *testing.T, inTimePeriod int, taAlg TALibTri, alg AlgTri) {
-	high, low, close, _ := dataHighLowCloseVolume(alg.WarmCount() + 3)
+	high, low, close, _ := dataHighLowCloseVolume(alg.WarmCount() + 10)
 
 	expList, _ := taAlg(high, low, close, inTimePeriod, nil)
 
@@ -103,7 +103,7 @@ func testTALibTri(t *testing.T, inTimePeriod int, taAlg TALibTri, alg AlgTri) {
 
 type TALibQuad0Per func([]float64, []float64, []float64, []float64, []float64) ([]float64, int)
 func testTALibQuad0Per(t *testing.T, taAlg TALibQuad0Per, alg AlgQuad) {
-	high, low, close, volume := dataHighLowCloseVolume(alg.WarmCount() + 3)
+	high, low, close, volume := dataHighLowCloseVolume(alg.WarmCount() + 10)
 
 	expList, _ := taAlg(high, low, close, volume, nil)
 
@@ -112,7 +112,7 @@ func testTALibQuad0Per(t *testing.T, taAlg TALibQuad0Per, alg AlgQuad) {
 
 type TALibQuad func([]float64, []float64, []float64, []float64, int, []float64) ([]float64, int)
 func testTALibQuad(t *testing.T, inTimePeriod int, taAlg TALibQuad, alg AlgQuad) {
-	high, low, close, volume := dataHighLowCloseVolume(alg.WarmCount() + 3)
+	high, low, close, volume := dataHighLowCloseVolume(alg.WarmCount() + 10)
 
 	expList, _ := taAlg(high, low, close, volume, inTimePeriod, nil)
 
@@ -121,7 +121,7 @@ func testTALibQuad(t *testing.T, inTimePeriod int, taAlg TALibQuad, alg AlgQuad)
 
 type TALibQuad2Per func([]float64, []float64, []float64, []float64, int, int, []float64) ([]float64, int)
 func testTALibQuad2Per(t *testing.T, inTimePeriodShort, inTimePeriodLong int, taAlg TALibQuad2Per, alg AlgQuad) {
-	high, low, close, volume := dataHighLowCloseVolume(alg.WarmCount() + 9)
+	high, low, close, volume := dataHighLowCloseVolume(alg.WarmCount() + 10)
 
 	expList, _ := taAlg(high, low, close, volume, inTimePeriodShort, inTimePeriodLong, nil)
 
