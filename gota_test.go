@@ -71,16 +71,16 @@ func testTALibSimple(t *testing.T, inTimePeriod int, alg AlgSimple, taAlg TALibS
 	assert.Equal(t, alg.WarmCount(), actWarmCount, "warm count not equal")
 }
 
-type TALibQuad0Per func([]float64, []float64, []float64, []float64, []float64) ([]float64, int)
-func testTALibQuad0Per(t *testing.T, taAlg TALibQuad0Per, alg AlgQuad) {
-	high, low, close, volume := dataHighLowCloseVolume(alg.WarmCount()+3)
+type TALibTri func([]float64, []float64, []float64, int, []float64) ([]float64, int)
+func testTALibTri(t *testing.T, inTimePeriod int, taAlg TALibTri, alg AlgTri) {
+	high, low, close, _ := dataHighLowCloseVolume(alg.WarmCount() + 3)
 
-	expList, _ := taAlg(high, low, close, volume, nil)
+	expList, _ := taAlg(high, low, close, inTimePeriod, nil)
 
 	var actWarmCount int
 	var actList []float64
 	for i := 0; i < len(high); i++ {
-		if vOut := alg.Add(high[i], low[i], close[i], volume[i]); alg.Warmed() {
+		if vOut := alg.Add(high[i], low[i], close[i]); alg.Warmed() {
 			actList = append(actList, vOut)
 		} else {
 			actWarmCount++
@@ -101,7 +101,23 @@ func testTALibQuad0Per(t *testing.T, taAlg TALibQuad0Per, alg AlgQuad) {
 	assert.Equal(t, alg.WarmCount(), actWarmCount, "warm count not equal")
 }
 
+type TALibQuad0Per func([]float64, []float64, []float64, []float64, []float64) ([]float64, int)
+func testTALibQuad0Per(t *testing.T, taAlg TALibQuad0Per, alg AlgQuad) {
+	high, low, close, volume := dataHighLowCloseVolume(alg.WarmCount() + 3)
+
+	expList, _ := taAlg(high, low, close, volume, nil)
+
+	_testTALibQuad(t, high, low, close, volume, alg, expList)
+}
+
 type TALibQuad func([]float64, []float64, []float64, []float64, int, []float64) ([]float64, int)
+func testTALibQuad(t *testing.T, inTimePeriod int, taAlg TALibQuad, alg AlgQuad) {
+	high, low, close, volume := dataHighLowCloseVolume(alg.WarmCount() + 3)
+
+	expList, _ := taAlg(high, low, close, volume, inTimePeriod, nil)
+
+	_testTALibQuad(t, high, low, close, volume, alg, expList)
+}
 
 type TALibQuad2Per func([]float64, []float64, []float64, []float64, int, int, []float64) ([]float64, int)
 func testTALibQuad2Per(t *testing.T, inTimePeriodShort, inTimePeriodLong int, taAlg TALibQuad2Per, alg AlgQuad) {
@@ -109,6 +125,10 @@ func testTALibQuad2Per(t *testing.T, inTimePeriodShort, inTimePeriodLong int, ta
 
 	expList, _ := taAlg(high, low, close, volume, inTimePeriodShort, inTimePeriodLong, nil)
 
+	_testTALibQuad(t, high, low, close, volume, alg, expList)
+}
+
+func _testTALibQuad(t *testing.T, high, low, close, volume []float64, alg AlgQuad, expList []float64) {
 	var actWarmCount int
 	var actList []float64
 	for i := 0; i < len(high); i++ {
