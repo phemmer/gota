@@ -8,13 +8,18 @@ import (
 type WarmupType uint8
 
 const (
-	WarmNone WarmupType = iota // No alternate warmup algorithm.
-														 // WarmNone is highly discouraged as it excessively weights the initial results towards the first values.
-	WarmSMA                    // Simple Moving Average
-	WarmEMA                    // Exponential Moving Average
-														 // WarmEMA scales the EMA's alpha value during the warmup period.
-														 // Meaning it acts as if the algorithms's configured period for the first sample is 1, second sample 2, etc.
-														 // Some algorithms have a shorter warmup period when this type is used.
+	// No alternate warmup algorithm.
+	// WarmNone is highly discouraged as it excessively weights the initial results towards the first values.
+	WarmNone WarmupType = iota
+
+	// Simple Moving Average
+	WarmSMA
+
+	// Exponential Moving Average
+	// WarmEMA scales the EMA's alpha value during the warmup period.
+	// Meaning it acts as if the algorithms's configured period for the first sample is 1, second sample 2, etc.
+	// Some algorithms have a shorter warmup period when this type is used.
+	WarmEMA
 )
 
 func (wt *WarmupType) UnmarshalJSON(bs []byte) error {
