@@ -8,15 +8,15 @@ import (
 type ADX struct {
 	high  float64
 	low   float64
-	pdmMA AlgSimple
-	ndmMA AlgSimple
-	dmMA  AlgSimple
-	atr   AlgTri
+	pdmMA AlgSingle
+	ndmMA AlgSingle
+	dmMA  AlgSingle
+	atr   AlgTriple
 	init  bool
 }
 
 // NewADXMA constructs a new ADX with the given moving average algorithm.
-func NewADXMA(inTimePeriod int, maNew AlgSimpleConstructor) *ADX {
+func NewADXMA(inTimePeriod int, maNew AlgSingleConstructor) *ADX {
 	return &ADX{
 		pdmMA: maNew(inTimePeriod),
 		ndmMA: maNew(inTimePeriod),

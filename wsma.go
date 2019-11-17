@@ -4,7 +4,7 @@ package gota
 type WSMAConstructor struct {
 	WarmupType WarmupType
 }
-func (c WSMAConstructor) New(inTimePeriod int) AlgSimple {
+func (c WSMAConstructor) New(inTimePeriod int) AlgSingle {
 	return NewWSMA(inTimePeriod, c.WarmupType)
 }
 

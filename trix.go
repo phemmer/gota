@@ -13,7 +13,7 @@ type TRIX struct {
 type TRIXConstructor struct {
 	WarmupType WarmupType
 }
-func (c TRIXConstructor) New(inTimePeriod int) AlgSimple {
+func (c TRIXConstructor) New(inTimePeriod int) AlgSingle {
 	return NewTRIX(inTimePeriod, c.WarmupType)
 }
 

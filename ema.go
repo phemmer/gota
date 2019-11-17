@@ -55,7 +55,7 @@ type EMAConstructor struct {
 	WarmupType WarmupType
 }
 
-func (c EMAConstructor) New(inTimePeriod int) AlgSimple {
+func (c EMAConstructor) New(inTimePeriod int) AlgSingle {
 	return NewEMA(inTimePeriod, c.WarmupType)
 }
 
@@ -128,7 +128,7 @@ type DEMAConstructor struct {
 	WarmupType WarmupType
 }
 
-func (c DEMAConstructor) New(inTimePeriod int) AlgSimple {
+func (c DEMAConstructor) New(inTimePeriod int) AlgSingle {
 	return NewDEMA(inTimePeriod, c.WarmupType)
 }
 
@@ -181,7 +181,7 @@ type TEMAConstructor struct {
 	WarmupType WarmupType
 }
 
-func (c TEMAConstructor) New(inTimePeriod int) AlgSimple {
+func (c TEMAConstructor) New(inTimePeriod int) AlgSingle {
 	return NewEMA(inTimePeriod, c.WarmupType)
 }
 

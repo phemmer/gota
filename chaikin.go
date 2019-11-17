@@ -31,11 +31,11 @@ func (adl ADL) WarmCount() int {
 
 type ADO struct {
 	adl      ADL
-	emaShort AlgSimple
-	emaLong  AlgSimple
+	emaShort AlgSingle
+	emaLong  AlgSingle
 }
 
-func NewADOMA(inTimePeriodShort, inTimePeriodLong int, maNew AlgSimpleConstructor) *ADO {
+func NewADOMA(inTimePeriodShort, inTimePeriodLong int, maNew AlgSingleConstructor) *ADO {
 	return &ADO{
 		emaShort: maNew(inTimePeriodShort),
 		emaLong:  maNew(inTimePeriodLong),

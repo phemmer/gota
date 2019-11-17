@@ -39,7 +39,7 @@ func dataHighLowCloseVolume(size int) ([]float64, []float64, []float64, []float6
 //type TALibSimple0Per func([]float64, []float64) ([]float64, int)
 
 type TALibSimple func([]float64, int, []float64) ([]float64, int)
-func testTALibSimple(t *testing.T, inTimePeriod int, alg AlgSimple, taAlg TALibSimple) {
+func testTALibSimple(t *testing.T, inTimePeriod int, alg AlgSingle, taAlg TALibSimple) {
 	list := randList(alg.WarmCount() + 10)
 
 	expList, _ := taAlg(list, inTimePeriod, nil)
@@ -72,7 +72,7 @@ func testTALibSimple(t *testing.T, inTimePeriod int, alg AlgSimple, taAlg TALibS
 }
 
 type TALibTri func([]float64, []float64, []float64, int, []float64) ([]float64, int)
-func testTALibTri(t *testing.T, inTimePeriod int, taAlg TALibTri, alg AlgTri) {
+func testTALibTri(t *testing.T, inTimePeriod int, taAlg TALibTri, alg AlgTriple) {
 	high, low, close, _ := dataHighLowCloseVolume(alg.WarmCount() + 10)
 
 	expList, _ := taAlg(high, low, close, inTimePeriod, nil)

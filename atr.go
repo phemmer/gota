@@ -7,13 +7,13 @@ import (
 // ATR - Average True Range (https://en.wikipedia.org/wiki/Average_true_range)
 type ATR struct {
 	prevClose float64
-	ma AlgSimple
+	ma        AlgSingle
 
 	init bool
 }
 
 // NewATRMA constructs a new ATR with the given moving average algorithm.
-func NewATRMA(inTimePeriod int, maNew AlgSimpleConstructor) *ATR {
+func NewATRMA(inTimePeriod int, maNew AlgSingleConstructor) *ATR {
 	return &ATR{
 		ma: maNew(inTimePeriod),
 	}
