@@ -21,3 +21,12 @@ func TestWSMA(t *testing.T) {
 
 	assert.InDeltaSlice(t, expList, actList, 1E-7, "Expected: %v\nActual: %v", expList, actList)
 }
+
+func TestWSMAPreWarmSMA(t *testing.T) {
+	wsma := NewWSMA(5, WarmSMA)
+	wsma.Add(1)
+	wsma.Add(1)
+	wsma.Add(1)
+	v := wsma.Add(0)
+	assert.InDelta(t, 0.75, v, 1E-7)
+}
